@@ -1,4 +1,4 @@
 jira-git-plugin
 ---------------
 
-This is a fork for our JIRA installation at CERN. Upstream work just till v6.
+Git plugin for Jira v 7.1.*
