@@ -424,7 +424,7 @@ public class GitManagerImpl implements GitManager
         }
 
 //        if (!repository.getObjectsDirectory().exists())
-        if (!repository.getDirectory().exists())
+        if (!repository.getObjectsDirectory().exists())
         {
             log.error("Connection to git repository " + getRoot() + " failed: Invalid repository");
             // We don't want to throw an exception here because then the system
