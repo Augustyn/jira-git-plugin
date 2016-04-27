@@ -48,11 +48,19 @@
             <id>atlassian-public-repository</id>
             <url>http://maven.atlassian.com/repository/public</url>
         </repository>
+        <!--<repository>-->
+        <!--<id>jgit-repository</id>-->
+        <!--<url>http://download.eclipse.org/jgit/maven</url>-->
+        <!--</repository>-->
+
         <repository>
             <id>jgit-repository</id>
-            <url>http://download.eclipse.org/jgit/maven</url>
+            <url>https://repo.eclipse.org/content/groups/releases/</url>
         </repository>
+
     </repositories>
+
+
     <pluginRepositories>
         <pluginRepository>
             <id>atlassian-public-repository</id>
@@ -62,17 +70,13 @@
 
 
     <dependencies>
+
+        <!-- Core Library -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>0.10.1</version>
+            <version>4.3.0.201604071810-r</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>javax.servlet</groupId>-->
-            <!--<artifactId>servlet-api</artifactId>-->
-            <!--<version>2.5</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>com.atlassian.jira</groupId>
