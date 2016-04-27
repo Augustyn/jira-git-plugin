@@ -3,33 +3,40 @@ package com.xiplink.jira.git.action;
 import com.xiplink.jira.git.GitManager;
 import com.xiplink.jira.git.MultipleGitRepositoryManager;
 
-public class UpdateGitRepositoryAction extends AddGitRepositoryAction {
+public class UpdateGitRepositoryAction extends AddGitRepositoryAction
+{
 
     private long repoId = -1;
 
-    public UpdateGitRepositoryAction(MultipleGitRepositoryManager multipleRepoManager) {
+    public UpdateGitRepositoryAction(MultipleGitRepositoryManager multipleRepoManager)
+    {
         super(multipleRepoManager);
     }
 
-    public String doDefault() {
-        if (ERROR.equals(super.doDefault())) {
+    public String doDefault()
+    {
+        if (ERROR.equals(super.doDefault()))
+        {
             return ERROR;
         }
 
-        if (!hasPermissions()) {
+        if (!hasPermissions())
+        {
             addErrorMessage(getText("git.admin.privilege.required"));
             return PERMISSION_VIOLATION_RESULT;
         }
 
 
-        if (repoId == -1) {
+        if (repoId == -1)
+        {
             addErrorMessage(getText("git.repository.id.missing"));
             return ERROR;
         }
 
         // Retrieve the repository
         final GitManager repository = getMultipleRepoManager().getRepository(repoId);
-        if (repository == null) {
+        if (repository == null)
+        {
             addErrorMessage(getText("git.repository.does.not.exist", Long.toString(repoId)));
             return ERROR;
         }
@@ -37,7 +44,8 @@ public class UpdateGitRepositoryAction extends AddGitRepositoryAction {
         this.setDisplayName(repository.getDisplayName());
         this.setRoot(repository.getRoot());
         this.setOrigin(repository.getOrigin());
-        if (repository.getViewLinkFormat() != null) {
+        if (repository.getViewLinkFormat() != null)
+        {
             this.setWebLinkType(repository.getViewLinkFormat().getType());
             this.setChangesetFormat(repository.getViewLinkFormat().getChangesetFormat());
             this.setViewFormat(repository.getViewLinkFormat().getViewFormat());
@@ -51,18 +59,22 @@ public class UpdateGitRepositoryAction extends AddGitRepositoryAction {
         return INPUT;
     }
 
-    public String doExecute() {
-        if (!hasPermissions()) {
+    public String doExecute()
+    {
+        if (!hasPermissions())
+        {
             addErrorMessage(getText("git.admin.privilege.required"));
             return ERROR;
         }
 
-        if (repoId == -1) {
+        if (repoId == -1)
+        {
             return getRedirect("ViewGitRepositories.jspa");
         }
 
         GitManager gitManager = getMultipleRepoManager().updateRepository(repoId, this);
-        if (!gitManager.isActive()) {
+        if (!gitManager.isActive())
+        {
             repoId = gitManager.getId();
             addErrorMessage(gitManager.getInactiveMessage());
             addErrorMessage(getText("admin.errors.occured.when.updating"));
@@ -71,11 +83,13 @@ public class UpdateGitRepositoryAction extends AddGitRepositoryAction {
         return getRedirect("ViewGitRepositories.jspa");
     }
 
-    public long getRepoId() {
+    public long getRepoId()
+    {
         return repoId;
     }
 
-    public void setRepoId(long repoId) {
+    public void setRepoId(long repoId)
+    {
         this.repoId = repoId;
     }
 }

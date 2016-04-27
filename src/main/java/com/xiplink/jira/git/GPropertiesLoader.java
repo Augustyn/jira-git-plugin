@@ -15,85 +15,98 @@ import java.util.Properties;
  * MultipleGitRepositoryManagerImpl doesn't get krufted up with a bunch
  * of legacy code
  */
-public class GPropertiesLoader {
+public class GPropertiesLoader
+{
 
-	private static Logger log = Logger.getLogger(GPropertiesLoader.class);
+    public static final String PROPERTIES_FILE_NAME = "git-jira-plugin.properties";
+    private static Logger log = Logger.getLogger(GPropertiesLoader.class);
 
-	public static final String PROPERTIES_FILE_NAME = "git-jira-plugin.properties";
+    public static List<GitProperties> getGitProperties() throws InfrastructureException
+    {
+        Properties allProps = System.getProperties();
 
-	public static List<GitProperties> getGitProperties() throws InfrastructureException {
-		Properties allProps = System.getProperties();
+        try
+        {
+            allProps.load(ClassLoaderUtils.getResourceAsStream(PROPERTIES_FILE_NAME,
+                    MultipleGitRepositoryManagerImpl.class));
+        } catch (IOException e)
+        {
+            throw new InfrastructureException("Problem loading " + PROPERTIES_FILE_NAME + ".", e);
+        }
 
-		try {
-			allProps.load(ClassLoaderUtils.getResourceAsStream(PROPERTIES_FILE_NAME,
-					MultipleGitRepositoryManagerImpl.class));
-		} catch (IOException e) {
-			throw new InfrastructureException("Problem loading " + PROPERTIES_FILE_NAME + ".", e);
-		}
+        List<GitProperties> propertyList = new ArrayList<GitProperties>();
+        GitProperties defaultProps = getGitProperty(-1, allProps);
+        if (defaultProps != null)
+        {
+            propertyList.add(defaultProps);
+        } else
+        {
+            return Collections.emptyList();
+        }
+        GitProperties prop;
+        int i = 1;
+        do
+        {
+            prop = getGitProperty(i, allProps);
+            i++;
+            if (prop != null)
+            {
+                prop.fillPropertiesFromOther(defaultProps);
+                propertyList.add(prop);
+            }
+        } while (prop != null);
 
-		List<GitProperties> propertyList = new ArrayList<GitProperties>();
-		GitProperties defaultProps = getGitProperty(-1, allProps);
-		if (defaultProps != null) {
-			propertyList.add(defaultProps);
-		} else {
-			return Collections.emptyList();
-		}
-		GitProperties prop;
-		int i = 1;
-		do {
-			prop = getGitProperty(i, allProps);
-			i++;
-			if (prop != null) {
-				prop.fillPropertiesFromOther(defaultProps);
-				propertyList.add(prop);
-			}
-		} while (prop != null);
+        return propertyList;
+    }
 
-		return propertyList;
-	}
+    protected static GitProperties getGitProperty(int index, Properties props)
+    {
+        String indexStr = "." + Integer.toString(index);
+        if (index == -1)
+        {
+            indexStr = "";
+        }
 
-	protected static GitProperties getGitProperty(int index, Properties props) {
-		String indexStr = "." + Integer.toString(index);
-		if (index == -1) {
-			indexStr = "";
-		}
-
-		if (props.containsKey(MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr)) {
-			final String gitRootStr = props.getProperty(MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr);
-			final String gitOriginStr = props.getProperty(MultipleGitRepositoryManager.GIT_ORIGIN_KEY + indexStr);
-			final String displayName = props.getProperty(MultipleGitRepositoryManager.GIT_REPOSITORY_NAME + indexStr);
+        if (props.containsKey(MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr))
+        {
+            final String gitRootStr = props.getProperty(MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr);
+            final String gitOriginStr = props.getProperty(MultipleGitRepositoryManager.GIT_ORIGIN_KEY + indexStr);
+            final String displayName = props.getProperty(MultipleGitRepositoryManager.GIT_REPOSITORY_NAME + indexStr);
 
 //			final String linkPathFormat = props.getProperty(MultipleGitRepositoryManager.git_LINKFORMAT_PATH_KEY
 //					+ indexStr);
-			final String changesetFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_CHANGESET
-					+ indexStr);
-			final String fileAddedFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_ADDED
-					+ indexStr);
-			final String fileModifiedFormat = props
-					.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_MODIFIED + indexStr);
-			final String fileDeletedFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_DELETED
-					+ indexStr);
+            final String changesetFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_CHANGESET
+                    + indexStr);
+            final String fileAddedFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_ADDED
+                    + indexStr);
+            final String fileModifiedFormat = props
+                    .getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_MODIFIED + indexStr);
+            final String fileDeletedFormat = props.getProperty(MultipleGitRepositoryManager.GIT_LINKFORMAT_FILE_DELETED
+                    + indexStr);
 
-			Boolean revisionIndexing = null;
-			if (props.containsKey(MultipleGitRepositoryManager.GIT_REVISION_INDEXING_KEY + indexStr)) {
-				revisionIndexing = Boolean.valueOf("true".equalsIgnoreCase(props
-						.getProperty(MultipleGitRepositoryManager.GIT_REVISION_INDEXING_KEY + indexStr)));
-			}
-			Integer revisionCacheSize = null;
-			if (props.containsKey(MultipleGitRepositoryManager.GIT_REVISION_CACHE_SIZE_KEY + indexStr)) {
-				revisionCacheSize = new Integer(props
-						.getProperty(MultipleGitRepositoryManager.GIT_REVISION_CACHE_SIZE_KEY + indexStr));
-			}
+            Boolean revisionIndexing = null;
+            if (props.containsKey(MultipleGitRepositoryManager.GIT_REVISION_INDEXING_KEY + indexStr))
+            {
+                revisionIndexing = Boolean.valueOf("true".equalsIgnoreCase(props
+                        .getProperty(MultipleGitRepositoryManager.GIT_REVISION_INDEXING_KEY + indexStr)));
+            }
+            Integer revisionCacheSize = null;
+            if (props.containsKey(MultipleGitRepositoryManager.GIT_REVISION_CACHE_SIZE_KEY + indexStr))
+            {
+                revisionCacheSize = new Integer(props
+                        .getProperty(MultipleGitRepositoryManager.GIT_REVISION_CACHE_SIZE_KEY + indexStr));
+            }
 
-			return new GitProperties().setRoot(gitRootStr).setOrigin(gitOriginStr).setDisplayName(displayName).setChangeSetFormat(
-					changesetFormat).setFileAddedFormat(fileAddedFormat).setFileModifiedFormat(fileModifiedFormat)
-					.setFileDeletedFormat(fileDeletedFormat).setRevisionIndexing(
-							revisionIndexing).setRevisioningCacheSize(revisionCacheSize);
+            return new GitProperties().setRoot(gitRootStr).setOrigin(gitOriginStr).setDisplayName(displayName).setChangeSetFormat(
+                    changesetFormat).setFileAddedFormat(fileAddedFormat).setFileModifiedFormat(fileModifiedFormat)
+                    .setFileDeletedFormat(fileDeletedFormat).setRevisionIndexing(
+                            revisionIndexing).setRevisioningCacheSize(revisionCacheSize);
 
-		} else {
-			log.info("No " + MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr + " specified in "
-					+ PROPERTIES_FILE_NAME);
-			return null;
-		}
-	}
+        } else
+        {
+            log.info("No " + MultipleGitRepositoryManager.GIT_ROOT_KEY + indexStr + " specified in "
+                    + PROPERTIES_FILE_NAME);
+            return null;
+        }
+    }
 }

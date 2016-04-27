@@ -4,43 +4,50 @@ import com.xiplink.jira.git.GitManager;
 import com.xiplink.jira.git.MultipleGitRepositoryManager;
 
 
-public class ResetLastIndexedRevisionsAction extends GitActionSupport {
-	private long repoId;
-	private GitManager gitManager;
+public class ResetLastIndexedRevisionsAction extends GitActionSupport
+{
+    private long repoId;
+    private GitManager gitManager;
 
-	public ResetLastIndexedRevisionsAction(MultipleGitRepositoryManager manager) {
-		super(manager);
-	}
+    public ResetLastIndexedRevisionsAction(MultipleGitRepositoryManager manager)
+    {
+        super(manager);
+    }
 
-    public String getRepoId() {
-		return Long.toString(repoId);
-	}
+    public String getRepoId()
+    {
+        return Long.toString(repoId);
+    }
 
-	public void setRepoId(String repoId) {
-		this.repoId = Long.parseLong(repoId);
-	}
+    public void setRepoId(String repoId)
+    {
+        this.repoId = Long.parseLong(repoId);
+    }
 
-	public String doDefault() {
+    public String doDefault()
+    {
         if (!hasPermissions())
         {
             return PERMISSION_VIOLATION_RESULT;
         }
 
-		gitManager = getMultipleRepoManager().getRepository(repoId);
-		return INPUT;
-	}
+        gitManager = getMultipleRepoManager().getRepository(repoId);
+        return INPUT;
+    }
 
-	public String doExecute() {
+    public String doExecute()
+    {
         if (!hasPermissions())
         {
             return PERMISSION_VIOLATION_RESULT;
         }
 
-		getMultipleRepoManager().clearLastIndexedRevisions(repoId);
-		return getRedirect("ViewGitRepositories.jspa");
-	}
+        getMultipleRepoManager().clearLastIndexedRevisions(repoId);
+        return getRedirect("ViewGitRepositories.jspa");
+    }
 
-	public GitManager getGitManager() {
-		return gitManager;
-	}
+    public GitManager getGitManager()
+    {
+        return gitManager;
+    }
 }

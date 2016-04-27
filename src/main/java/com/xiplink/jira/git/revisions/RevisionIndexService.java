@@ -17,35 +17,6 @@ public class RevisionIndexService extends AbstractService
     public static final String REVISION_INDEX_SERVICE_NAME = "Git Revision Indexing Service";
     public static final long REVISION_INDEX_SERVICE_DELAY = 5 * 60 * 1000L;
 
-    public void run()
-    {
-        try
-        {
-            MultipleGitRepositoryManager multipleGitRepositoryManager = getMultipleGitRepositoryManager();
-
-            if (null == multipleGitRepositoryManager)
-                return; // Just return --- the plugin is disabled. Don't log anything.
-
-            if (multipleGitRepositoryManager.getRevisionIndexer() != null)
-            {
-                multipleGitRepositoryManager.getRevisionIndexer().updateIndex();
-            }
-            else
-            {
-                log.warn("Tried to index changes but SubversionManager has no revision indexer?");
-            }
-        }
-        catch (Throwable t)
-        {
-            log.error("Error indexing changes: " + t, t);
-        }
-    }
-
-    public ObjectConfiguration getObjectConfiguration() throws ObjectConfigurationException
-    {
-        return getObjectConfiguration("gitREVISIONSERVICE", "services/plugins/git/revisionindexservice.xml", null);
-    }
-
     public static void install(ServiceManager serviceManager) throws Exception
     {
         if (serviceManager.getServiceWithName(REVISION_INDEX_SERVICE_NAME) == null)
@@ -60,6 +31,33 @@ public class RevisionIndexService extends AbstractService
         {
             serviceManager.removeServiceByName(REVISION_INDEX_SERVICE_NAME);
         }
+    }
+
+    public void run()
+    {
+        try
+        {
+            MultipleGitRepositoryManager multipleGitRepositoryManager = getMultipleGitRepositoryManager();
+
+            if (null == multipleGitRepositoryManager)
+                return; // Just return --- the plugin is disabled. Don't log anything.
+
+            if (multipleGitRepositoryManager.getRevisionIndexer() != null)
+            {
+                multipleGitRepositoryManager.getRevisionIndexer().updateIndex();
+            } else
+            {
+                log.warn("Tried to index changes but SubversionManager has no revision indexer?");
+            }
+        } catch (Throwable t)
+        {
+            log.error("Error indexing changes: " + t, t);
+        }
+    }
+
+    public ObjectConfiguration getObjectConfiguration() throws ObjectConfigurationException
+    {
+        return getObjectConfiguration("gitREVISIONSERVICE", "services/plugins/git/revisionindexservice.xml", null);
     }
 
     private MultipleGitRepositoryManager getMultipleGitRepositoryManager()

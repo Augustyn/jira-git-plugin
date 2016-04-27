@@ -14,24 +14,14 @@ public class GitRevision
         return revisionNumber;
     }
 
-    public String getMessage()
-    {
-        return message;
-    }
-
-    public Date getDate()
-    {
-        return date;
-    }
-
-    public String getAuthor()
-    {
-        return author;
-    }
-
     public void setRevisionNumber(long revisionNumber)
     {
         this.revisionNumber = revisionNumber;
+    }
+
+    public String getMessage()
+    {
+        return message;
     }
 
     public void setMessage(String message)
@@ -39,9 +29,19 @@ public class GitRevision
         this.message = message;
     }
 
+    public Date getDate()
+    {
+        return date;
+    }
+
     public void setDate(Date date)
     {
         this.date = date;
+    }
+
+    public String getAuthor()
+    {
+        return author;
     }
 
     public void setAuthor(String author)

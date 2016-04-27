@@ -13,7 +13,7 @@ public class ViewGitRepositoriesAction extends GitActionSupport
 
     public ViewGitRepositoriesAction(MultipleGitRepositoryManager manager)
     {
-        super (manager);
+        super(manager);
     }
 
     public Collection<GitManager> getRepositories()

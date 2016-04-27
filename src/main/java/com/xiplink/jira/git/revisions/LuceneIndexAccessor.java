@@ -1,6 +1,5 @@
 package com.xiplink.jira.git.revisions;
 
-import com.atlassian.jira.issue.index.IndexException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -28,11 +27,11 @@ interface LuceneIndexAccessor
     /**
      * Gets a Lucene {@link org.apache.lucene.index.IndexWriter} at the given path.
      *
-     * @param path the path.
-     * @param create if true, then create if absent.
+     * @param path     the path.
+     * @param create   if true, then create if absent.
      * @param analyzer the {@link org.apache.lucene.analysis.Analyzer} to use.
-     * @throws IOException if there's some problem getting the writer.
      * @return the IndexWriter.
+     * @throws IOException if there's some problem getting the writer.
      */
-    IndexWriter getIndexWriter(String path, boolean create, Analyzer analyzer)  throws IOException;
+    IndexWriter getIndexWriter(String path, boolean create, Analyzer analyzer) throws IOException;
 }

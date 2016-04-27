@@ -5,7 +5,8 @@ import com.xiplink.jira.git.GProperties;
 import com.xiplink.jira.git.GitManager;
 import com.xiplink.jira.git.MultipleGitRepositoryManager;
 
-public class AddGitRepositoryAction extends GitActionSupport implements GProperties {
+public class AddGitRepositoryAction extends GitActionSupport implements GProperties
+{
 
     private String root;
     private String origin;
@@ -19,133 +20,161 @@ public class AddGitRepositoryAction extends GitActionSupport implements GPropert
     private String fileModifiedFormat;
     private String fileDeletedFormat;
 
-    public AddGitRepositoryAction(MultipleGitRepositoryManager manager) {
+    public AddGitRepositoryAction(MultipleGitRepositoryManager manager)
+    {
         super(manager);
     }
 
-    public void doValidation() {
-        if (!TextUtils.stringSet(getDisplayName())) {
+    public void doValidation()
+    {
+        if (!TextUtils.stringSet(getDisplayName()))
+        {
             addError("displayName", getText("git.errors.you.must.specify.a.name.for.the.repository"));
         }
 
         validateRepositoryParameters();
     }
 
-    public String getRoot() {
+    public String getRoot()
+    {
         return root;
     }
 
-    public void setRoot(String root) {
+    public void setRoot(String root)
+    {
         this.root = root != null ? root.trim() : root;
     }
 
-    public String getDisplayName() {
+    public String getDisplayName()
+    {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(String displayName)
+    {
         this.displayName = displayName;
     }
 
-    public void setOrigin(String origin) {
-        if (TextUtils.stringSet(origin)) {
-            this.origin = origin;
-        } else {
-            this.origin = null;
-        }
-    }
-
-    public Boolean getRevisionIndexing() {
+    public Boolean getRevisionIndexing()
+    {
         return revisionIndexing;
     }
 
-    public void setRevisionIndexing(Boolean revisionIndexing) {
+    public void setRevisionIndexing(Boolean revisionIndexing)
+    {
         this.revisionIndexing = revisionIndexing;
     }
 
-    public Integer getRevisionCacheSize() {
+    public Integer getRevisionCacheSize()
+    {
         return revisionCacheSize;
     }
 
-    public void setRevisionCacheSize(Integer revisionCacheSize) {
+    public void setRevisionCacheSize(Integer revisionCacheSize)
+    {
         this.revisionCacheSize = revisionCacheSize;
     }
 
-    public String getWebLinkType() {
+    public String getWebLinkType()
+    {
         return webLinkType;
     }
 
-    public void setWebLinkType(String webLinkType) {
+    public void setWebLinkType(String webLinkType)
+    {
         this.webLinkType = webLinkType;
     }
 
-    public String getChangesetFormat() {
+    public String getChangesetFormat()
+    {
         return changesetFormat;
     }
 
-    public void setChangesetFormat(String changesetFormat) {
-        if (TextUtils.stringSet(changesetFormat)) {
+    public void setChangesetFormat(String changesetFormat)
+    {
+        if (TextUtils.stringSet(changesetFormat))
+        {
             this.changesetFormat = changesetFormat;
-        } else {
+        } else
+        {
             this.changesetFormat = null;
         }
     }
 
-    public String getFileAddedFormat() {
+    public String getFileAddedFormat()
+    {
         return fileAddedFormat;
     }
 
-    public void setFileAddedFormat(String fileAddedFormat) {
-        if (TextUtils.stringSet(fileAddedFormat)) {
+    public void setFileAddedFormat(String fileAddedFormat)
+    {
+        if (TextUtils.stringSet(fileAddedFormat))
+        {
             this.fileAddedFormat = fileAddedFormat;
-        } else {
+        } else
+        {
             this.fileAddedFormat = null;
         }
     }
 
-    public String getViewFormat() {
+    public String getViewFormat()
+    {
         return viewFormat;
     }
 
-    public void setViewFormat(String viewFormat) {
-        if (TextUtils.stringSet(viewFormat)) {
+    public void setViewFormat(String viewFormat)
+    {
+        if (TextUtils.stringSet(viewFormat))
+        {
             this.viewFormat = viewFormat;
-        } else {
+        } else
+        {
             this.viewFormat = null;
         }
     }
 
-    public String getFileModifiedFormat() {
+    public String getFileModifiedFormat()
+    {
         return fileModifiedFormat;
     }
 
-    public void setFileModifiedFormat(String fileModifiedFormat) {
-        if (TextUtils.stringSet(fileModifiedFormat)) {
+    public void setFileModifiedFormat(String fileModifiedFormat)
+    {
+        if (TextUtils.stringSet(fileModifiedFormat))
+        {
             this.fileModifiedFormat = fileModifiedFormat;
-        } else {
+        } else
+        {
             this.fileModifiedFormat = null;
         }
     }
 
-    public String getFileDeletedFormat() {
+    public String getFileDeletedFormat()
+    {
         return fileDeletedFormat;
     }
 
-    public void setFileDeletedFormat(String fileDeletedFormat) {
-        if (TextUtils.stringSet(fileDeletedFormat)) {
+    public void setFileDeletedFormat(String fileDeletedFormat)
+    {
+        if (TextUtils.stringSet(fileDeletedFormat))
+        {
             this.fileDeletedFormat = fileDeletedFormat;
-        } else {
+        } else
+        {
             this.fileDeletedFormat = null;
         }
     }
 
-    public String doExecute() throws Exception {
-        if (!hasPermissions()) {
+    public String doExecute() throws Exception
+    {
+        if (!hasPermissions())
+        {
             return PERMISSION_VIOLATION_RESULT;
         }
 
         GitManager GitManager = getMultipleRepoManager().createRepository(this);
-        if (!GitManager.isActive()) {
+        if (!GitManager.isActive())
+        {
             addErrorMessage(GitManager.getInactiveMessage());
             addErrorMessage(getText("admin.errors.occured.when.creating"));
             getMultipleRepoManager().removeRepository(GitManager.getId());
@@ -156,19 +185,35 @@ public class AddGitRepositoryAction extends GitActionSupport implements GPropert
     }
 
     // This is public for testing purposes
-    public void validateRepositoryParameters() {
-        if (!TextUtils.stringSet(getDisplayName())) {
+    public void validateRepositoryParameters()
+    {
+        if (!TextUtils.stringSet(getDisplayName()))
+        {
             addError("displayName", getText("git.errors.you.must.specify.a.name.for.the.repository"));
         }
-        if (!TextUtils.stringSet(getRoot())) {
+        if (!TextUtils.stringSet(getRoot()))
+        {
             addError("root", getText("git.errors.you.must.specify.the.root.of.the.repository"));
         }
-        if (!TextUtils.stringSet(getOrigin())) {
+        if (!TextUtils.stringSet(getOrigin()))
+        {
             addError("origin", getText("git.errors.you.must.specify.the.origin.of.the.repository"));
         }
     }
 
-    public String getOrigin() {
+    public String getOrigin()
+    {
         return origin;
+    }
+
+    public void setOrigin(String origin)
+    {
+        if (TextUtils.stringSet(origin))
+        {
+            this.origin = origin;
+        } else
+        {
+            this.origin = null;
+        }
     }
 }

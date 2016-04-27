@@ -15,9 +15,8 @@ import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.service.ServiceManager;
-import com.atlassian.jira.util.JiraKeyUtils;
-import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.util.JiraKeyUtils;
 import com.opensymphony.util.TextUtils;
 import com.xiplink.jira.git.GPropertiesLoader;
 import com.xiplink.jira.git.GitManager;
@@ -35,17 +34,13 @@ import org.apache.lucene.search.*;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.ofbiz.core.entity.GenericEntityException;
-import org.ofbiz.core.entity.GenericValue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class RevisionIndexer {
-
-    private static Logger log = Logger.getLogger(RevisionIndexer.class);
-    private static final String REVISIONS_INDEX_DIRECTORY = "jira-git-revisions";
+public class RevisionIndexer
+{
 
     // These are names of the fields in the Lucene documents that contain revision info.
     public static final String FIELD_REVISIONNUMBER = "revision";
@@ -57,11 +52,10 @@ public class RevisionIndexer {
     public static final String FIELD_PROJECTKEY = "project";
     public static final String FIELD_REPOSITORY = "repository";
     public static final String FIELD_BRANCH = "branch";
-
     public static final StandardAnalyzer ANALYZER = new StandardAnalyzer(org.apache.lucene.util.Version.LUCENE_30);
-
     public static final int MAX_REVISIONS = 100;
-
+    private static final String REVISIONS_INDEX_DIRECTORY = "jira-git-revisions";
+    private static Logger log = Logger.getLogger(RevisionIndexer.class);
     private final MultipleGitRepositoryManager multipleGitRepositoryManager;
     private final VersionManager versionManager;
     private final IssueManager issueManager;
@@ -76,7 +70,8 @@ public class RevisionIndexer {
             IssueManager issueManager,
             PermissionManager permissionManager,
             ServiceManager serviceManager,
-            IndexPathManager indexPathManager) {
+            IndexPathManager indexPathManager)
+    {
 
         this(multipleGitRepositoryManager, versionManager, issueManager, permissionManager,
                 serviceManager, new DefaultLuceneIndexAccessor(), indexPathManager);
@@ -89,7 +84,8 @@ public class RevisionIndexer {
             PermissionManager permissionManager,
             ServiceManager serviceManager,
             LuceneIndexAccessor accessor,
-            IndexPathManager indexPathManager) {
+            IndexPathManager indexPathManager)
+    {
         this.multipleGitRepositoryManager = multipleGitRepositoryManager;
         this.versionManager = versionManager;
         this.issueManager = issueManager;
@@ -99,12 +95,15 @@ public class RevisionIndexer {
         this.indexPathManager = indexPathManager;
     }
 
-    public void start() {
-        try {
+    public void start()
+    {
+        try
+        {
             createIndexIfNeeded();
             RevisionIndexService.install(serviceManager); // ensure the changes index service
             // is installed
-        } catch (Throwable t) {
+        } catch (Throwable t)
+        {
             log.error("Could not load properties from " + GPropertiesLoader.PROPERTIES_FILE_NAME, t);
             throw new InfrastructureException("Could not load properties from "
                     + GPropertiesLoader.PROPERTIES_FILE_NAME, t);
@@ -118,42 +117,54 @@ public class RevisionIndexer {
      *
      * @return true if the index exists after this method ran, false if the index could not be created.
      */
-    private boolean createIndexIfNeeded() {
-        if (log.isDebugEnabled()) {
+    private boolean createIndexIfNeeded()
+    {
+        if (log.isDebugEnabled())
+        {
             log.debug("RevisionIndexer.createIndexIfNeeded()");
         }
 
         boolean indexExists = indexDirectoryExists();
-        if (getIndexPath() != null && !indexExists) {
-            try {
+        if (getIndexPath() != null && !indexExists)
+        {
+            try
+            {
                 indexAccessor.getIndexWriter(getIndexPath(), true, ANALYZER).close();
                 return true;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 log.error("Could not create the index directory for the Git plugin.", e);
                 return false;
             }
-        } else {
+        } else
+        {
             return indexExists;
         }
     }
 
-    private boolean indexDirectoryExists() {
-        try {
+    private boolean indexDirectoryExists()
+    {
+        try
+        {
             // check if the directory exists
             File file = new File(getIndexPath());
 
             return file.exists();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             return false;
         }
     }
 
-    public String getIndexPath() {
+    public String getIndexPath()
+    {
         String indexPath = null;
         String rootIndexPath = indexPathManager.getPluginIndexRootPath();
-        if (rootIndexPath != null) {
+        if (rootIndexPath != null)
+        {
             indexPath = rootIndexPath + System.getProperty("file.separator") + REVISIONS_INDEX_DIRECTORY;
-        } else {
+        } else
+        {
             log.warn("At the moment the root index path of jira is not set, so we can not form an index path for the git plugin.");
         }
 
@@ -163,49 +174,59 @@ public class RevisionIndexer {
     /**
      * This method updates the index, creating it if it does not already exist.
      *
-     * @throws IndexException
-     *             if there is some problem in the indexing subsystem meaning indexes cannot be updated.
+     * @throws IndexException if there is some problem in the indexing subsystem meaning indexes cannot be updated.
      */
-    public void updateIndex() throws IndexException, IOException {
-        updateIndex(new BranchFilter() {
-            public Collection<String> filter(Collection<String> branches) {
+    public void updateIndex() throws IndexException, IOException
+    {
+        updateIndex(new BranchFilter()
+        {
+            public Collection<String> filter(Collection<String> branches)
+            {
                 return branches;
             }
         });
     }
 
-    public void updateIndex(final String branchName) throws IndexException, IOException {
-        updateIndex(new BranchFilter() {
-            public Collection<String> filter(Collection<String> branches) {
-                if(branches.contains(branchName)) {
+    public void updateIndex(final String branchName) throws IndexException, IOException
+    {
+        updateIndex(new BranchFilter()
+        {
+            public Collection<String> filter(Collection<String> branches)
+            {
+                if (branches.contains(branchName))
+                {
                     return Collections.singletonList(branchName);
-                } else {
+                } else
+                {
                     return Collections.emptyList();
                 }
             }
         });
     }
 
-    private interface BranchFilter {
-        Collection<String> filter(Collection<String> branches);
-    }
-
-    private void updateIndex(BranchFilter branchFilter) throws IndexException, IOException {
-        if (createIndexIfNeeded()) {
+    private void updateIndex(BranchFilter branchFilter) throws IndexException, IOException
+    {
+        if (createIndexIfNeeded())
+        {
             Collection<GitManager> repositories = multipleGitRepositoryManager.getRepositoryList();
 
             // temp log comment
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled())
+            {
                 log.debug("repos size = " + repositories.size());
             }
 
-            for (GitManager gitManager : repositories) {
-                try {
+            for (GitManager gitManager : repositories)
+            {
+                try
+                {
                     // if the repository isn't active, try activating it. if it still not accessible, skip it
-                    if (!gitManager.isActive()) {
+                    if (!gitManager.isActive())
+                    {
                         gitManager.activate();
 
-                        if (!gitManager.isActive()) {
+                        if (!gitManager.isActive())
+                        {
                             continue;
                         }
                     }
@@ -217,12 +238,15 @@ public class RevisionIndexer {
                     Map<String, String> allBranches = gitManager.getBranches();
                     Collection<String> branchesNames = branchFilter.filter(allBranches.keySet());
 
-                    for (String branchName : branchesNames) {
+                    for (String branchName : branchesNames)
+                    {
                         updateBranchIndex(repoId, branchName, allBranches, gitManager);
                     }
-                } catch (IOException e) {
+                } catch (IOException e)
+                {
                     log.warn("Unable to index repository '" + gitManager.getDisplayName() + "'", e);
-                } catch (RuntimeException e) {
+                } catch (RuntimeException e)
+                {
                     log.warn("Unable to index repository '" + gitManager.getDisplayName() + "'", e);
                 }
             }
@@ -230,18 +254,22 @@ public class RevisionIndexer {
     }
 
     private void updateBranchIndex(long repoId, String branchName, Map<String, String> allBranches, GitManager gitManager)
-            throws IOException, IndexException {
+            throws IOException, IndexException
+    {
 
         String branchId = allBranches.get(branchName);
         String latestIndexedRevision =
                 gitManager.getProperties().getString(MultipleGitRepositoryManager.GIT_BRANCH_INDEXED_REVISION + branchName);
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled())
+        {
             log.info("Branch: " + branchName);
         }
 
-        if (branchId.equals(latestIndexedRevision)) {
-            if (log.isDebugEnabled()) {
+        if (branchId.equals(latestIndexedRevision))
+        {
+            if (log.isDebugEnabled())
+            {
                 log.info("Branch index is up-to-date");
             }
 
@@ -249,20 +277,25 @@ public class RevisionIndexer {
         }
 
         String headId = gitManager.getRefId(Constants.HEAD);
-        if((latestIndexedRevision == null) && !branchId.equals(headId)) {
+        if ((latestIndexedRevision == null) && !branchId.equals(headId))
+        {
             RevCommit base = gitManager.getMergeBase(headId, branchId);
             latestIndexedRevision = (base != null ? base.getId().getName() : null);
 
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled())
+            {
                 log.info("Branch was never indexed. Assuming start point: " + latestIndexedRevision);
             }
-        } else {
-         if (log.isDebugEnabled()) {
-            log.info("Latest indexed revision is: " + latestIndexedRevision);
-        }
+        } else
+        {
+            if (log.isDebugEnabled())
+            {
+                log.info("Latest indexed revision is: " + latestIndexedRevision);
+            }
         }
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled())
+        {
             log.info("Updating to: " + branchId);
         }
 
@@ -270,13 +303,18 @@ public class RevisionIndexer {
 
         IndexWriter writer = indexAccessor.getIndexWriter(getIndexPath(), false, ANALYZER);
 
-        try {
+        try
+        {
             IndexReader reader = indexAccessor.getIndexReader(getIndexPath());
 
-            try {
-                for (RevCommit logEntry : logEntries) {
-                    if (TextUtils.stringSet(logEntry.getFullMessage()) && isKeyInString(logEntry)) {
-                        if (!hasDocument(repoId, branchName, logEntry.getId(), reader)) {
+            try
+            {
+                for (RevCommit logEntry : logEntries)
+                {
+                    if (TextUtils.stringSet(logEntry.getFullMessage()) && isKeyInString(logEntry))
+                    {
+                        if (!hasDocument(repoId, branchName, logEntry.getId(), reader))
+                        {
 
                             Document doc = getDocument(repoId, branchName, logEntry);
 //                            if (log.isDebugEnabled()) {
@@ -287,17 +325,20 @@ public class RevisionIndexer {
                         }
                     }
                 }
-            } finally {
+            } finally
+            {
                 reader.close();
             }
-        } finally {
+        } finally
+        {
             writer.close();
         }
 
         gitManager.getProperties().setString(MultipleGitRepositoryManager.GIT_BRANCH_INDEXED_REVISION + branchName, branchId);
     }
 
-    protected boolean isKeyInString(RevCommit logEntry) {
+    protected boolean isKeyInString(RevCommit logEntry)
+    {
         final String logMessageUpperCase = StringUtils.upperCase(logEntry.getFullMessage());
         return JiraKeyUtils.isKeyInString(logMessageUpperCase);
     }
@@ -305,9 +346,11 @@ public class RevisionIndexer {
     /**
      * Work out whether a given change, for the specified repository, is already in the index or not.
      */
-    private boolean hasDocument(long repoId, String branchName, ObjectId revisionNumber, IndexReader reader) throws IOException {
+    private boolean hasDocument(long repoId, String branchName, ObjectId revisionNumber, IndexReader reader) throws IOException
+    {
         IndexSearcher searcher = new IndexSearcher(reader);
-        try {
+        try
+        {
             TermQuery repoQuery = new TermQuery(new Term(FIELD_REPOSITORY, Long.toString(repoId)));
             TermQuery branchQuery = new TermQuery(new Term(FIELD_BRANCH, branchName));
             TermQuery revQuery = new TermQuery(new Term(FIELD_REVISIONNUMBER, revisionNumber.name()));
@@ -319,16 +362,20 @@ public class RevisionIndexer {
 
             TopDocs hits = searcher.search(repoAndRevQuery, MAX_REVISIONS);
 
-            if (hits.totalHits == 1) {
+            if (hits.totalHits == 1)
+            {
                 return true;
-            } else if (hits.totalHits == 0) {
+            } else if (hits.totalHits == 0)
+            {
                 return false;
-            } else {
+            } else
+            {
                 log.error("Found MORE than one document for repository=" + repoId +
-                            "; branch=" + branchName + "; revision=" + revisionNumber);
+                        "; branch=" + branchName + "; revision=" + revisionNumber);
                 return true;
             }
-        } finally {
+        } finally
+        {
             searcher.close();
         }
     }
@@ -337,23 +384,24 @@ public class RevisionIndexer {
      * Creates a new Lucene document for the supplied log entry. This method is used when indexing revisions, not during
      * retrieval.
      *
-     * @param repoId
-     *            ID of the repository that contains the revision
-     * @param logEntry
-     *            The Git log entry that is about to be indexed
+     * @param repoId   ID of the repository that contains the revision
+     * @param logEntry The Git log entry that is about to be indexed
      * @return A Lucene document object that is ready to be added to an index
      */
-    protected Document getDocument(long repoId, String branchName, RevCommit logEntry) {
+    protected Document getDocument(long repoId, String branchName, RevCommit logEntry)
+    {
         Document doc = new Document();
 
         // revision information
         doc.add(new Field(FIELD_MESSAGE, logEntry.getFullMessage(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-        if (logEntry.getAuthorIdent() != null) {
+        if (logEntry.getAuthorIdent() != null)
+        {
             doc.add(new Field(FIELD_AUTHOR, logEntry.getAuthorIdent().getName(), Field.Store.YES,
                     Field.Index.NOT_ANALYZED));
         }
-        if (logEntry.getCommitterIdent() != null) {
+        if (logEntry.getCommitterIdent() != null)
+        {
             doc.add(new Field(FIELD_COMMITTER, logEntry.getCommitterIdent().getName(), Field.Store.YES,
                     Field.Index.NOT_ANALYZED));
         }
@@ -362,7 +410,8 @@ public class RevisionIndexer {
         doc.add(new Field(FIELD_REVISIONNUMBER, logEntry.getId().name(), Field.Store.YES, Field.Index.NOT_ANALYZED));
         doc.add(new Field(FIELD_BRANCH, branchName, Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-        if (logEntry.getCommitTime() > 0) {
+        if (logEntry.getCommitTime() > 0)
+        {
             doc.add(new Field(FIELD_DATE,
                     DateTools.timeToString(logEntry.getCommitTime(), DateTools.Resolution.SECOND), Field.Store.YES,
                     Field.Index.NOT_ANALYZED));
@@ -374,10 +423,12 @@ public class RevisionIndexer {
         // Relevant project keys. Used to avoid adding duplicate projects.
         Map<String, String> projects = new HashMap<String, String>();
 
-        for (String issueKey : keys) {
+        for (String issueKey : keys)
+        {
             doc.add(new Field(FIELD_ISSUEKEY, issueKey, Field.Store.YES, Field.Index.NOT_ANALYZED));
             String projectKey = getProjectKeyFromIssueKey(issueKey);
-            if (!projects.containsKey(projectKey)) {
+            if (!projects.containsKey(projectKey))
+            {
                 projects.put(projectKey, projectKey);
                 doc.add(new Field(FIELD_PROJECTKEY, projectKey, Field.Store.YES, Field.Index.NOT_ANALYZED));
             }
@@ -386,12 +437,14 @@ public class RevisionIndexer {
         return doc;
     }
 
-    protected String getProjectKeyFromIssueKey(String issueKey) {
+    protected String getProjectKeyFromIssueKey(String issueKey)
+    {
         final String issueKeyUpperCase = StringUtils.upperCase(issueKey);
         return JiraKeyUtils.getFastProjectKeyFromIssueKey(issueKeyUpperCase);
     }
 
-    protected List<String> getIssueKeysFromString(RevCommit logEntry) {
+    protected List<String> getIssueKeysFromString(RevCommit logEntry)
+    {
         final String logMessageUpperCase = StringUtils.upperCase(logEntry.getFullMessage());
         return JiraKeyUtils.getIssueKeysFromString(logMessageUpperCase);
     }
@@ -400,19 +453,21 @@ public class RevisionIndexer {
      * This method will return the log entries collected from Git categorized by the repository it came from. NOTE: a
      * null map will be returned if the indexes for this plugin have not yet been initialized.
      *
-     * @param issue
-     *            the issue to get entries for.
+     * @param issue the issue to get entries for.
      * @return A map with key of repository id (long) and entry of a collections of Logs. Null if the repository has not
-     *         yet been initialized.
+     * yet been initialized.
      */
     public List<RevisionInfo> getLogEntriesByRepository(Issue issue)
-            throws IndexException, IOException {
-        
-        if (log.isDebugEnabled()) {
+            throws IndexException, IOException
+    {
+
+        if (log.isDebugEnabled())
+        {
             log.debug("Retrieving revisions for issue: " + issue.getKey());
         }
 
-        if (!indexDirectoryExists()) {
+        if (!indexDirectoryExists())
+        {
             log.warn("The indexes for the Git plugin have not yet been created.");
             return null;
         }
@@ -422,23 +477,27 @@ public class RevisionIndexer {
         final IndexReader reader = indexAccessor.getIndexReader(getIndexPath());
         IndexSearcher searcher = new IndexSearcher(reader);
 
-        try {
+        try
+        {
             BooleanQuery query = new BooleanQuery();
             query.add(new TermQuery(new Term(FIELD_ISSUEKEY, key)), BooleanClause.Occur.MUST);
 
             TopDocs hits = searcher.search(query, MAX_REVISIONS);
             List<RevisionInfo> logEntries = new ArrayList<RevisionInfo>(hits.totalHits);
 
-            for (int i = 0; i < Math.min(hits.totalHits, MAX_REVISIONS); i++) {
+            for (int i = 0; i < Math.min(hits.totalHits, MAX_REVISIONS); i++)
+            {
                 Document doc = searcher.doc(hits.scoreDocs[i].doc);
                 long repositoryId = Long.parseLong(doc.get(FIELD_REPOSITORY));
                 // repositoryId is UUID + location
                 GitManager manager = multipleGitRepositoryManager.getRepository(repositoryId);
                 String revision = doc.get(FIELD_REVISIONNUMBER);
                 RevCommit logEntry = manager.getLogEntry(revision);
-                if (logEntry == null) {
+                if (logEntry == null)
+                {
                     log.error("Could not find log message for revision: " + doc.get(FIELD_REVISIONNUMBER));
-                } else {
+                } else
+                {
                     RevisionInfo revInfo = new RevisionInfo();
                     revInfo.setRepositoryId(repositoryId);
                     revInfo.setBranch(doc.get(FIELD_BRANCH));
@@ -450,23 +509,29 @@ public class RevisionIndexer {
 
             // sort by commit time - can we sort topologically? should
             // we?
-            Collections.sort(logEntries, new Comparator<RevisionInfo>() {
+            Collections.sort(logEntries, new Comparator<RevisionInfo>()
+            {
 
-                public int compare(RevisionInfo o, RevisionInfo o1) {
+                public int compare(RevisionInfo o, RevisionInfo o1)
+                {
                     long r = o.getCommit().getCommitTime();
                     long r1 = o1.getCommit().getCommitTime();
-                    if (r == r1) {
+                    if (r == r1)
+                    {
                         return 0;
-                    } else if (r > r1) {
+                    } else if (r > r1)
+                    {
                         return -1;
-                    } else {
+                    } else
+                    {
                         return 1;
                     }
                 }
             });
 
             return logEntries;
-        } finally {
+        } finally
+        {
             searcher.close();
             reader.close();
         }
@@ -476,30 +541,29 @@ public class RevisionIndexer {
      * This method will return the log entries collected from Git categorized by the repository it came from. NOTE: a
      * null map will be returned if the indexes for this plugin have not yet been initialized.
      *
-     * @param projectKey
-     *            The project key, used in all issue keys.
-     * @param user
-     *            The remote user -- we need to check that the user has "View Version Control" permission for an issue
-     *            before we show a commit for it.
-     * @param numberOfEntries
-     *            How many entries to fetch.
+     * @param projectKey      The project key, used in all issue keys.
+     * @param user            The remote user -- we need to check that the user has "View Version Control" permission for an issue
+     *                        before we show a commit for it.
+     * @param numberOfEntries How many entries to fetch.
      * @return A map with key of repository id (not display name) and entry of a collections of Logs. Null if the
-     *         repository has not yet been initialized.
-     * @throws com.atlassian.jira.issue.index.IndexException
-     *             if the Lucene index reader cannot be retrieved
-     * @throws java.io.IOException
-     *             if reading the Lucene index fails
+     * repository has not yet been initialized.
+     * @throws com.atlassian.jira.issue.index.IndexException if the Lucene index reader cannot be retrieved
+     * @throws java.io.IOException                           if reading the Lucene index fails
      */
     public List<RevisionInfo> getLogEntriesByProject(String projectKey, ApplicationUser user, int numberOfEntries)
-            throws IndexException, IOException {
-        if (projectKey == null || numberOfEntries < 0) {
+            throws IndexException, IOException
+    {
+        if (projectKey == null || numberOfEntries < 0)
+        {
             throw new IllegalArgumentException("getLogEntriesByProject(" + projectKey + ", " + numberOfEntries + ")");
         }
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled())
+        {
             log.debug("getLogEntriesByProject(" + projectKey + ", " + numberOfEntries + ")");
         }
 
-        if (!indexDirectoryExists()) {
+        if (!indexDirectoryExists())
+        {
             log.warn("getLogEntriesByProject() The indexes for the Git plugin have not yet been created.");
             return null;
         }
@@ -513,44 +577,52 @@ public class RevisionIndexer {
         List<RevisionInfo> logEntries = new ArrayList<RevisionInfo>();
         final IndexReader reader = indexAccessor.getIndexReader(getIndexPath());
         IndexSearcher searcher = new IndexSearcher(reader);
-        try {
+        try
+        {
             TopDocs hits = searcher.search(query, new ProjectRevisionFilter(issueManager, permissionManager, user, projectKey), MAX_REVISIONS, sort);
 
-            if (hits == null) {
+            if (hits == null)
+            {
                 log.info("getLogEntriesByProject() No matches -- returning null.");
                 return null;
             }
             // Build the result map
             logEntries = new ArrayList<RevisionInfo>(hits.totalHits);
             int commitsEntered = 0;
-            for (int i = 0; i < hits.totalHits && i < MAX_REVISIONS && commitsEntered < numberOfEntries; i++) {
+            for (int i = 0; i < hits.totalHits && i < MAX_REVISIONS && commitsEntered < numberOfEntries; i++)
+            {
                 Document doc = searcher.doc(hits.scoreDocs[i].doc);
                 String revision = doc.get(FIELD_REVISIONNUMBER);
 
                 // Get all the issue keys mentioned in the commit.
                 String[] issueKeys = doc.getValues(FIELD_ISSUEKEY);
-                if (issueKeys == null) {
+                if (issueKeys == null)
+                {
                     log.warn("getLogEntriesByProject() Revision " + revision + " does not have any issues.");
                     continue;
                 }
 
                 // Check that the user has view permission for at least one of the issues
                 boolean hasPermission = false;
-                for (int index = 0; !hasPermission && index < issueKeys.length; index++) {
+                for (int index = 0; !hasPermission && index < issueKeys.length; index++)
+                {
                     // Look up the issue
                     Issue issue = issueManager.getIssueObject(issueKeys[index]);
-                    if (issue != null) {
+                    if (issue != null)
+                    {
                         hasPermission = permissionManager.hasPermission(Permissions.VIEW_VERSION_CONTROL, issue,
                                 user);
                     }
                 }
 
-                if (hasPermission) {
+                if (hasPermission)
+                {
                     long repositoryId = Long.parseLong(doc.get(FIELD_REPOSITORY));
                     // repositoryId is UUID + location
                     GitManager manager = multipleGitRepositoryManager.getRepository(repositoryId);
                     RevCommit logEntry = manager.getLogEntry(revision);
-                    if (logEntry == null) {
+                    if (logEntry == null)
+                    {
                         log.error("getLogEntriesByProject() Could not find log message for revision: " + revision);
                         continue;
                     }
@@ -561,11 +633,12 @@ public class RevisionIndexer {
                     revInfo.setCommit(logEntry);
 
                     logEntries.add(revInfo);
-                    
+
                     commitsEntered++;
                 }
             }
-        } finally {
+        } finally
+        {
             searcher.close();
             reader.close();
         }
@@ -576,34 +649,33 @@ public class RevisionIndexer {
     /**
      * This method returns the log entries collected from Git categorized by the repository it came from. NOTE: a null
      * map will be returned if the indexes for this plugin have not yet been initialized.
-     * <p/>
+     * <p>
      * This method uses the Version Manager to look up all issues affected by and fixed by the supplied {@link Version}.
      * The Lucene index is then used to look up all the commits for all the issues.
      *
-     * @param version
-     *            the version to get entries for.
-     * @param user
-     *            The remote user -- we need to check that the user has "View Version Control" permission for an issue
-     *            before we show a commit for it.
-     * @param numberOfEntries
-     *            How many entries to fetch.
+     * @param version         the version to get entries for.
+     * @param user            The remote user -- we need to check that the user has "View Version Control" permission for an issue
+     *                        before we show a commit for it.
+     * @param numberOfEntries How many entries to fetch.
      * @return A map with key of repository display name and entry of a collections of Logs. <code>null</code> if the
-     *         repository has not yet been initialized.
-     * @throws com.atlassian.jira.issue.index.IndexException
-     *             if the Lucene index reader cannot be retrieved
-     * @throws java.io.IOException
-     *             if reading the Lucene index fails
+     * repository has not yet been initialized.
+     * @throws com.atlassian.jira.issue.index.IndexException if the Lucene index reader cannot be retrieved
+     * @throws java.io.IOException                           if reading the Lucene index fails
      */
     public List<RevisionInfo> getLogEntriesByVersion(Version version, ApplicationUser user, int numberOfEntries)
-            throws IndexException, IOException {
-        if (version == null || numberOfEntries < 0) {
+            throws IndexException, IOException
+    {
+        if (version == null || numberOfEntries < 0)
+        {
             throw new IllegalArgumentException("getLogEntriesByVersion(" + version + ")");
         }
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled())
+        {
             log.debug("getLogEntriesByVersion(" + version + ", " + numberOfEntries + ")");
         }
 
-        if (!indexDirectoryExists()) {
+        if (!indexDirectoryExists())
+        {
             log.warn("getLogEntriesByVersion() The indexes for the Git plugin have not yet been created.");
             return null;
         }
@@ -616,14 +688,17 @@ public class RevisionIndexer {
 
         // Construct a query with all the issue keys. Make sure to increase the maximum number of clauses if needed.
         int maxClauses = BooleanQuery.getMaxClauseCount();
-        if (issues.size() > maxClauses) {
+        if (issues.size() > maxClauses)
+        {
             BooleanQuery.setMaxClauseCount(issues.size());
         }
         BooleanQuery query = new BooleanQuery();
         Set<String> permittedIssueKeys = new HashSet<String>();
 
-        for (Issue issue : issues) {
-            if (permissionManager.hasPermission(Permissions.VIEW_VERSION_CONTROL, issue, user)) {
+        for (Issue issue : issues)
+        {
+            if (permissionManager.hasPermission(Permissions.VIEW_VERSION_CONTROL, issue, user))
+            {
                 String key = issue.getKey();
                 TermQuery termQuery = new TermQuery(new Term(FIELD_ISSUEKEY, key));
                 query.add(termQuery, BooleanClause.Occur.SHOULD);
@@ -635,19 +710,22 @@ public class RevisionIndexer {
         IndexSearcher searcher = new IndexSearcher(reader);
         List<RevisionInfo> logEntries = new ArrayList<RevisionInfo>();
 
-        try {
+        try
+        {
             // Run the query and sort by date in descending order
             Sort sort = new Sort(new SortField(FIELD_DATE, SortField.STRING, true));
             TopDocs hits = searcher.search(query, new PermittedIssuesRevisionFilter(issueManager, permissionManager, user, permittedIssueKeys), MAX_REVISIONS, sort);
 
-            if (hits == null) {
+            if (hits == null)
+            {
                 log.info("getLogEntriesByVersion() No matches -- returning null.");
                 return null;
             }
 
             logEntries = new ArrayList<RevisionInfo>(hits.totalHits);
             int commitsEntered = 0;
-            for (int i = 0; i < hits.totalHits && i < MAX_REVISIONS && commitsEntered < numberOfEntries; i++) {
+            for (int i = 0; i < hits.totalHits && i < MAX_REVISIONS && commitsEntered < numberOfEntries; i++)
+            {
                 Document doc = searcher.doc(hits.scoreDocs[i].doc);
                 long repositoryId = Long.parseLong(doc.get(FIELD_REPOSITORY));
                 // repositoryId is UUID + location
@@ -656,23 +734,28 @@ public class RevisionIndexer {
 
                 // Get all the issue keys mentioned in the commit.
                 String[] issueKeys = doc.getValues(FIELD_ISSUEKEY);
-                if (issueKeys == null) {
+                if (issueKeys == null)
+                {
                     log.warn("getLogEntriesByProject() Revision " + revision + " does not have any issues.");
                     continue;
                 }
                 // Check that the user has view permission for at least one of the issues
                 boolean hasPermission = false;
-                for (int index = 0; !hasPermission && index < issueKeys.length; index++) {
+                for (int index = 0; !hasPermission && index < issueKeys.length; index++)
+                {
                     // Look up the issue
                     Issue issue = issueManager.getIssueObject(issueKeys[index]);
-                    if (issue != null) {
+                    if (issue != null)
+                    {
                         hasPermission = permissionManager.hasPermission(Permissions.VIEW_VERSION_CONTROL, issue, user);
                     }
                 }
 
-                if (hasPermission) {
+                if (hasPermission)
+                {
                     RevCommit logEntry = manager.getLogEntry(revision);
-                    if (logEntry == null) {
+                    if (logEntry == null)
+                    {
                         log.error("getLogEntriesByVersion() Could not find log message for revision: "
                                 + doc.get(FIELD_REVISIONNUMBER));
                     }
@@ -683,11 +766,12 @@ public class RevisionIndexer {
                     revInfo.setCommit(logEntry);
 
                     logEntries.add(revInfo);
-                    
+
                     commitsEntered++;
                 }
             }
-        } finally {
+        } finally
+        {
             searcher.close();
             reader.close();
             BooleanQuery.setMaxClauseCount(maxClauses);
@@ -696,32 +780,45 @@ public class RevisionIndexer {
         return logEntries;
     }
 
-    public void addRepository(GitManager gitInstance) {
-        try {
+    public void addRepository(GitManager gitInstance)
+    {
+        try
+        {
             updateIndex();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new InfrastructureException("Could not index repository", e);
         }
     }
 
-    public void removeEntries(GitManager gitInstance) throws IOException, IndexException {
-        if (log.isDebugEnabled()) {
+    public void removeEntries(GitManager gitInstance) throws IOException, IndexException
+    {
+        if (log.isDebugEnabled())
+        {
             log.debug("Deleteing revisions for : " + gitInstance.getRoot());
         }
 
-        if (!indexDirectoryExists()) {
+        if (!indexDirectoryExists())
+        {
             log.warn("The indexes for the Git plugin have not yet been created.");
             return;
         }
-        
+
         long repoId = gitInstance.getId();
 
         final IndexWriter writer = indexAccessor.getIndexWriter(getIndexPath(), false, ANALYZER);
 
-        try {
+        try
+        {
             writer.deleteDocuments(new Term(FIELD_REPOSITORY, Long.toString(repoId)));
-        } finally {
+        } finally
+        {
             writer.close();
         }
+    }
+
+    private interface BranchFilter
+    {
+        Collection<String> filter(Collection<String> branches);
     }
 }

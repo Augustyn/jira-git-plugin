@@ -2,7 +2,8 @@ package com.xiplink.jira.git;
 
 import com.opensymphony.module.propertyset.PropertySet;
 
-public interface GProperties {
+public interface GProperties
+{
 
     String getRoot();
 
@@ -26,9 +27,11 @@ public interface GProperties {
 
     String getFileDeletedFormat();
 
-    static class Util {
+    static class Util
+    {
 
-        static PropertySet fillPropertySet(GProperties properties, PropertySet propertySet) {
+        static PropertySet fillPropertySet(GProperties properties, PropertySet propertySet)
+        {
             propertySet.setString(MultipleGitRepositoryManager.GIT_ROOT_KEY, properties.getRoot());
             propertySet.setString(MultipleGitRepositoryManager.GIT_ORIGIN_KEY, properties.getOrigin());
             propertySet.setString(MultipleGitRepositoryManager.GIT_REPOSITORY_NAME, properties.getDisplayName() != null ? properties.getDisplayName() : properties.getRoot());

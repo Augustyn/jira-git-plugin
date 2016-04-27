@@ -14,25 +14,31 @@ import com.xiplink.jira.git.WebLinkType;
 /**
  * Base class for the Git plugins actions.
  */
-public class GitActionSupport extends JiraWebActionSupport {
+public class GitActionSupport extends JiraWebActionSupport
+{
 
     private MultipleGitRepositoryManager multipleRepoManager;
     private List<WebLinkType> webLinkTypes;
 
-    public GitActionSupport(MultipleGitRepositoryManager manager) {
+    public GitActionSupport(MultipleGitRepositoryManager manager)
+    {
         this.multipleRepoManager = manager;
     }
 
-    protected MultipleGitRepositoryManager getMultipleRepoManager() {
+    protected MultipleGitRepositoryManager getMultipleRepoManager()
+    {
         return multipleRepoManager;
     }
 
-    public boolean hasPermissions() {
+    public boolean hasPermissions()
+    {
         return hasGlobalPermission(GlobalPermissionKey.ADMINISTER);
     }
 
-    public String doDefault() {
-        if (!hasPermissions()) {
+    public String doDefault()
+    {
+        if (!hasPermissions())
+        {
             addErrorMessage(getText("git.admin.privilege.required"));
             return PERMISSION_VIOLATION_RESULT;
         }
@@ -40,14 +46,17 @@ public class GitActionSupport extends JiraWebActionSupport {
         return INPUT;
     }
 
-    public List<WebLinkType> getWebLinkTypes() throws IOException {
-        if (webLinkTypes == null) {
+    public List<WebLinkType> getWebLinkTypes() throws IOException
+    {
+        if (webLinkTypes == null)
+        {
             webLinkTypes = new ArrayList<WebLinkType>();
             Properties properties = new Properties();
             properties.load(getClass().getResourceAsStream("/gitweblinktypes.properties"));
 
             String[] types = properties.getProperty("types", "").split(" ");
-            for (String type : types) {
+            for (String type : types)
+            {
                 webLinkTypes.add(new WebLinkType(type,
                         properties.getProperty(type + ".name", type),
                         properties.getProperty(type + ".view"),

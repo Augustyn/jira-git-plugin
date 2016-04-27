@@ -2,17 +2,13 @@
  * Copyright (C) 2007, Robin Rosenberg <robin.rosenberg@dewire.com>
  * Copyright (C) 2008, Shawn O. Pearce <spearce@spearce.org>
  * Copyright (c) 2010, Stefan Lay <stefan.lay@sap.com>
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
 package com.xiplink.jira.git;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -25,15 +21,29 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class FileDiff {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class FileDiff
+{
 
     private final int number;
     private final RevCommit commit;
     private DiffEntry diffEntry;
 
-    private static ObjectId[] trees(final RevCommit commit) {
+    FileDiff(final RevCommit c, final DiffEntry entry, final int num)
+    {
+        diffEntry = entry;
+        commit = c;
+        number = num;
+    }
+
+    private static ObjectId[] trees(final RevCommit commit)
+    {
         final ObjectId[] r = new ObjectId[commit.getParentCount() + 1];
-        for (int i = 0; i < r.length - 1; i++) {
+        for (int i = 0; i < r.length - 1; i++)
+        {
             r[i] = commit.getParent(i).getTree().getId();
         }
         r[r.length - 1] = commit.getTree().getId();
@@ -42,51 +52,64 @@ public class FileDiff {
 
     static FileDiff[] compute(final TreeWalk walk, final RevCommit commit)
             throws MissingObjectException, IncorrectObjectTypeException,
-            CorruptObjectException, IOException {
+            CorruptObjectException, IOException
+    {
         final ArrayList<FileDiff> r = new ArrayList<FileDiff>();
 
-        if (commit.getParentCount() > 0) {
+        if (commit.getParentCount() > 0)
+        {
             walk.reset(trees(commit));
-        } else {
+        } else
+        {
             walk.reset();
             walk.addTree(new EmptyTreeIterator());
             walk.addTree(commit.getTree());
         }
 
-        if (walk.getTreeCount() <= 2) {
+        if (walk.getTreeCount() <= 2)
+        {
             List<DiffEntry> entries = DiffEntry.scan(walk);
             int number = 0;
-            for (DiffEntry entry : entries) {
+            for (DiffEntry entry : entries)
+            {
                 final FileDiff d = new FileDiff(commit, entry, number);
                 r.add(d);
                 number++;
             }
-        } else { // DiffEntry does not support walks with more than two trees
+        } else
+        { // DiffEntry does not support walks with more than two trees
             final int nTree = walk.getTreeCount();
             final int myTree = nTree - 1;
-            while (walk.next()) {
-                if (matchAnyParent(walk, myTree)) {
+            while (walk.next())
+            {
+                if (matchAnyParent(walk, myTree))
+                {
                     continue;
                 }
 
                 final FileDiffForMerges d = new FileDiffForMerges(commit);
                 d.path = walk.getPathString();
                 int m0 = 0;
-                for (int i = 0; i < myTree; i++) {
+                for (int i = 0; i < myTree; i++)
+                {
                     m0 |= walk.getRawMode(i);
                 }
                 final int m1 = walk.getRawMode(myTree);
                 d.change = ChangeType.MODIFY;
-                if (m0 == 0 && m1 != 0) {
+                if (m0 == 0 && m1 != 0)
+                {
                     d.change = ChangeType.ADD;
-                } else if (m0 != 0 && m1 == 0) {
+                } else if (m0 != 0 && m1 == 0)
+                {
                     d.change = ChangeType.DELETE;
-                } else if (m0 != m1 && walk.idEqual(0, myTree)) {
+                } else if (m0 != m1 && walk.idEqual(0, myTree))
+                {
                     d.change = ChangeType.MODIFY; // there is no ChangeType.TypeChanged
                 }
                 d.blobs = new ObjectId[nTree];
                 d.modes = new FileMode[nTree];
-                for (int i = 0; i < nTree; i++) {
+                for (int i = 0; i < nTree; i++)
+                {
                     d.blobs[i] = walk.getObjectId(i);
                     d.modes[i] = walk.getFileMode(i);
                 }
@@ -100,91 +123,105 @@ public class FileDiff {
         return tmp;
     }
 
-    private static boolean matchAnyParent(final TreeWalk walk, final int myTree) {
+    private static boolean matchAnyParent(final TreeWalk walk, final int myTree)
+    {
         final int m = walk.getRawMode(myTree);
-        for (int i = 0; i < myTree; i++) {
-            if (walk.getRawMode(i) == m && walk.idEqual(i, myTree)) {
+        for (int i = 0; i < myTree; i++)
+        {
+            if (walk.getRawMode(i) == m && walk.idEqual(i, myTree))
+            {
                 return true;
             }
         }
         return false;
     }
 
-    public RevCommit getCommit() {
+    public RevCommit getCommit()
+    {
         return commit;
     }
 
-    public String getPath() {
-        if (ChangeType.DELETE.equals(diffEntry.getChangeType())) {
+    public String getPath()
+    {
+        if (ChangeType.DELETE.equals(diffEntry.getChangeType()))
+        {
             return diffEntry.getOldPath();
         }
         return diffEntry.getNewPath();
     }
 
-    public ChangeType getChange() {
+    public ChangeType getChange()
+    {
         return diffEntry.getChangeType();
     }
 
-    public ObjectId[] getBlobs() {
+    public ObjectId[] getBlobs()
+    {
         List<ObjectId> objectIds = new ArrayList<ObjectId>();
-        if (diffEntry.getOldId() != null) {
+        if (diffEntry.getOldId() != null)
+        {
             objectIds.add(diffEntry.getOldId().toObjectId());
         }
-        if (diffEntry.getNewId() != null) {
+        if (diffEntry.getNewId() != null)
+        {
             objectIds.add(diffEntry.getNewId().toObjectId());
         }
         return objectIds.toArray(new ObjectId[]{});
     }
 
-    public FileMode[] getModes() {
+    public FileMode[] getModes()
+    {
         List<FileMode> modes = new ArrayList<FileMode>();
-        if (diffEntry.getOldMode() != null) {
+        if (diffEntry.getOldMode() != null)
+        {
             modes.add(diffEntry.getOldMode());
         }
-        if (diffEntry.getOldMode() != null) {
+        if (diffEntry.getOldMode() != null)
+        {
             modes.add(diffEntry.getOldMode());
         }
         return modes.toArray(new FileMode[]{});
     }
 
-    public int getNumber() {
+    public int getNumber()
+    {
         return number;
     }
 
-    FileDiff(final RevCommit c, final DiffEntry entry, final int num) {
-        diffEntry = entry;
-        commit = c;
-        number = num;
-    }
-
-    private static class FileDiffForMerges extends FileDiff {
+    private static class FileDiffForMerges extends FileDiff
+    {
 
         private String path;
         private ChangeType change;
         private ObjectId[] blobs;
         private FileMode[] modes;
 
-        private FileDiffForMerges(final RevCommit c) {
+        private FileDiffForMerges(final RevCommit c)
+        {
             super(c, null, 0);
         }
 
         @Override
-        public String getPath() {
+        public String getPath()
+        {
             return path;
         }
 
         @Override
-        public ChangeType getChange() {
+        public ChangeType getChange()
+        {
             return change;
         }
 
         @Override
-        public ObjectId[] getBlobs() {
+        public ObjectId[] getBlobs()
+        {
             return blobs;
         }
 
         @Override
-        public FileMode[] getModes() {
+        public FileMode[] getModes()
+        {
             return modes;
         }
     }
