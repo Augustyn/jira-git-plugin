@@ -11,7 +11,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.xiplink.jira.git.FileDiff;
 
 
-
 /**
  * Used when the user does not specify any web links for Perforce - just return String values, no links.
  */
@@ -30,6 +29,6 @@ public class NullLinkRenderer implements GitLinkRenderer
     public String getCopySrcLinkHtml(RevCommit revision, FileDiff logEntryPath)
     {
         return logEntryPath//.getCopyPath() 
-        + " #" + logEntryPath;//.getCopyRevision();
+                + " #" + logEntryPath;//.getCopyRevision();
     }
 }

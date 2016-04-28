@@ -20,7 +20,8 @@ import com.xiplink.jira.git.linkrenderer.GitLinkRenderer;
 /**
  * One item in the 'Git Commits' tab.
  */
-public class GitRevisionAction extends AbstractIssueAction {
+public class GitRevisionAction extends AbstractIssueAction
+{
 
     protected final RevCommit revision;
     protected final long repoId;
@@ -30,7 +31,8 @@ public class GitRevisionAction extends AbstractIssueAction {
     protected String branch;
 
     public GitRevisionAction(RevCommit logEntry, MultipleGitRepositoryManager multipleGitRepositoryManager,
-            IssueTabPanelModuleDescriptor descriptor, long repoId, String branch) {
+                             IssueTabPanelModuleDescriptor descriptor, long repoId, String branch)
+    {
         super(descriptor);
         this.multipleGitRepositoryManager = multipleGitRepositoryManager;
         this.descriptor = descriptor;
@@ -40,60 +42,74 @@ public class GitRevisionAction extends AbstractIssueAction {
         this.branch = branch;
     }
 
-    protected void populateVelocityParams(Map params) {
+    protected void populateVelocityParams(Map params)
+    {
         params.put("git", this);
     }
 
-    public GitLinkRenderer getLinkRenderer() {
+    public GitLinkRenderer getLinkRenderer()
+    {
         return multipleGitRepositoryManager.getRepository(repoId).getLinkRenderer();
     }
 
-    public String getRepositoryDisplayName() {
+    public String getRepositoryDisplayName()
+    {
         return multipleGitRepositoryManager.getRepository(repoId).getDisplayName();
     }
 
-    public Date getTimePerformed() {
+    public Date getTimePerformed()
+    {
         return timePerformed;
     }
 
-    public String getTimePerformedFormatted() {
+    public String getTimePerformedFormatted()
+    {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZ");
         return sdf.format(timePerformed);
     }
 
-    public long getRepoId() {
+    public long getRepoId()
+    {
         return repoId;
     }
 
-    public String getBranch() {
+    public String getBranch()
+    {
         return branch;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return revision.getAuthorIdent().getName();
     }
 
-    public RevCommit getRevision() {
+    public RevCommit getRevision()
+    {
         return revision;
     }
 
-    public boolean isAdded(FileDiff logEntryPath) {
+    public boolean isAdded(FileDiff logEntryPath)
+    {
         return logEntryPath.getChange() == ChangeType.ADD;
     }
 
-    public boolean isModified(FileDiff logEntryPath) {
+    public boolean isModified(FileDiff logEntryPath)
+    {
         return logEntryPath.getChange() == ChangeType.MODIFY;
     }
 
-    public boolean isDeleted(FileDiff logEntryPath) {
+    public boolean isDeleted(FileDiff logEntryPath)
+    {
         return logEntryPath.getChange() == ChangeType.DELETE;
     }
 
-    public FileDiff[] getChangedPaths() {
+    public FileDiff[] getChangedPaths()
+    {
         return multipleGitRepositoryManager.getRepository(repoId).getFileDiffs(revision.getId().name());
     }
 
-    public String getLinkedLogMessageHtml() {
+    public String getLinkedLogMessageHtml()
+    {
         // Name ends in Html to avoid HTML escaping
         // https://developer.atlassian.com/display/JIRADEV/Velocity+Templates
         return JiraKeyUtils.linkBugKeys(revision.getFullMessage().trim());
@@ -103,21 +119,23 @@ public class GitRevisionAction extends AbstractIssueAction {
      * Converts all lower case JIRA issue keys to upper case so that they can be
      * correctly rendered in the Velocity macro, makelinkedhtml.
      *
-     * @param logMessageToBeRewritten
-     *            The git log message to be rewritten.
+     * @param logMessageToBeRewritten The git log message to be rewritten.
      * @return The rewritten git log message.
      */
-    protected String rewriteLogMessage(final String logMessageToBeRewritten) {
+    protected String rewriteLogMessage(final String logMessageToBeRewritten)
+    {
         String logMessage = logMessageToBeRewritten;
         final String logMessageUpperCase = StringUtils.upperCase(logMessage);
         final Set<String> issueKeys = new HashSet<String>(JiraKeyUtils.getIssueKeysFromString(logMessageUpperCase));
 
-        for (String issueKey : issueKeys) {
+        for (String issueKey : issueKeys)
+        {
             int indexOfIssueKey;
             int lastIndexOfIssueKey = 0;
 
             while (lastIndexOfIssueKey < logMessageUpperCase.length()
-                    && -1 != (indexOfIssueKey = logMessageUpperCase.indexOf(issueKey, lastIndexOfIssueKey))) {
+                    && -1 != (indexOfIssueKey = logMessageUpperCase.indexOf(issueKey, lastIndexOfIssueKey)))
+            {
                 logMessage = logMessage.replaceFirst(logMessage.substring(indexOfIssueKey, indexOfIssueKey
                         + issueKey.length()), issueKey);
                 lastIndexOfIssueKey = indexOfIssueKey + issueKey.length();

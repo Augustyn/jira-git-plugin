@@ -5,7 +5,8 @@ package com.xiplink.jira.git;
  *
  * @author Chenggong Lu
  */
-public class ViewLinkFormat {
+public class ViewLinkFormat
+{
 
     private String type;
     private String changesetFormat;
@@ -15,7 +16,8 @@ public class ViewLinkFormat {
     private String fileDeletedFormat;
 
     public ViewLinkFormat(String type, String changesetFormat, String fileAddedFormat, String fileModifiedFormat,
-            String fileDeletedFormat, String pathLinkFormat) {
+                          String fileDeletedFormat, String pathLinkFormat)
+    {
         this.setType(type);
         this.setViewFormat(pathLinkFormat);
         this.setFileAddedFormat(fileAddedFormat);
@@ -24,82 +26,103 @@ public class ViewLinkFormat {
         this.setChangesetFormat(changesetFormat);
     }
 
-    public void fillFormatFromOther(ViewLinkFormat other) {
-        if (other != null) {
-            if (this.getType() == null) {
+    public void fillFormatFromOther(ViewLinkFormat other)
+    {
+        if (other != null)
+        {
+            if (this.getType() == null)
+            {
                 this.setType(other.getType());
             }
-            if (this.getViewFormat() == null) {
+            if (this.getViewFormat() == null)
+            {
                 this.setViewFormat(other.viewFormat);
             }
-            if (this.getFileAddedFormat() == null) {
+            if (this.getFileAddedFormat() == null)
+            {
                 this.setFileAddedFormat(other.fileAddedFormat);
             }
-            if (this.getFileModifiedFormat() == null) {
+            if (this.getFileModifiedFormat() == null)
+            {
                 this.setFileModifiedFormat(other.fileModifiedFormat);
             }
-            if (this.getFileDeletedFormat() == null) {
+            if (this.getFileDeletedFormat() == null)
+            {
                 this.setFileDeletedFormat(other.fileDeletedFormat);
             }
-            if (this.getChangesetFormat() == null) {
+            if (this.getChangesetFormat() == null)
+            {
                 this.setChangesetFormat(other.changesetFormat);
             }
         }
 
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "pathLink: " + getViewFormat()
                 + " addedFormat: " + getFileAddedFormat()
                 + " modifiedFormat: " + getFileModifiedFormat()
                 + " deletedFormat: " + getFileDeletedFormat();
     }
 
-    public String getType() {
+    public String getType()
+    {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(String type)
+    {
         this.type = type;
     }
 
-    public String getChangesetFormat() {
+    public String getChangesetFormat()
+    {
         return changesetFormat;
     }
 
-    public void setChangesetFormat(String changesetFormat) {
+    public void setChangesetFormat(String changesetFormat)
+    {
         this.changesetFormat = changesetFormat;
     }
 
-    public String getFileAddedFormat() {
+    public String getFileAddedFormat()
+    {
         return fileAddedFormat;
     }
 
-    public void setFileAddedFormat(String fileAddedFormat) {
+    public void setFileAddedFormat(String fileAddedFormat)
+    {
         this.fileAddedFormat = fileAddedFormat;
     }
 
-    public String getViewFormat() {
+    public String getViewFormat()
+    {
         return viewFormat;
     }
 
-    public void setViewFormat(String viewFormat) {
+    public void setViewFormat(String viewFormat)
+    {
         this.viewFormat = viewFormat;
     }
 
-    public String getFileModifiedFormat() {
+    public String getFileModifiedFormat()
+    {
         return fileModifiedFormat;
     }
 
-    public void setFileModifiedFormat(String fileModifiedFormat) {
+    public void setFileModifiedFormat(String fileModifiedFormat)
+    {
         this.fileModifiedFormat = fileModifiedFormat;
     }
 
-    public String getFileDeletedFormat() {
+    public String getFileDeletedFormat()
+    {
         return fileDeletedFormat;
     }
 
-    public void setFileDeletedFormat(String fileDeletedFormat) {
+    public void setFileDeletedFormat(String fileDeletedFormat)
+    {
         this.fileDeletedFormat = fileDeletedFormat;
     }
 }
