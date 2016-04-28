@@ -92,6 +92,7 @@
             <artifactId>org.eclipse.jgit</artifactId>
             <version>0.10.1</version>
         </dependency>
+
         <!--<dependency>-->
             <!--<groupId>org.eclipse.jgit</groupId>-->
             <!--<artifactId>org.eclipse.jgit</artifactId>-->
@@ -116,78 +117,6 @@
         </dependency>
 
     </dependencies>
-
-    <!--<dependencies>-->
-
-    <!--&lt;!&ndash; Core Library &ndash;&gt;-->
-    <!--<dependency>-->
-    <!--<groupId>org.eclipse.jgit</groupId>-->
-    <!--<artifactId>org.eclipse.jgit</artifactId>-->
-    <!--<version>4.3.0.201604071810-r</version>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-    <!--<groupId>com.atlassian.jira</groupId>-->
-    <!--<artifactId>jira-api</artifactId>-->
-    <!--<version>${jira.version}</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-    <!--<groupId>com.atlassian.jira</groupId>-->
-    <!--<artifactId>jira-core</artifactId>-->
-    <!--<version>${jira.version}</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-    <!--<groupId>junit</groupId>-->
-    <!--<artifactId>junit</artifactId>-->
-    <!--<version>4.10</version>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-    <!--<groupId>com.atlassian.plugin</groupId>-->
-    <!--<artifactId>atlassian-spring-scanner-annotation</artifactId>-->
-    <!--<version>${atlassian.spring.scanner.version}</version>-->
-    <!--<scope>compile</scope>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-    <!--<groupId>com.atlassian.plugin</groupId>-->
-    <!--<artifactId>atlassian-spring-scanner-runtime</artifactId>-->
-    <!--<version>${atlassian.spring.scanner.version}</version>-->
-    <!--<scope>runtime</scope>-->
-    <!--</dependency>-->
-
-    <!--<dependency>-->
-    <!--<groupId>javax.inject</groupId>-->
-    <!--<artifactId>javax.inject</artifactId>-->
-    <!--<version>1</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
-
-    <!--&lt;!&ndash; WIRED TEST RUNNER DEPENDENCIES &ndash;&gt;-->
-    <!--<dependency>-->
-    <!--<groupId>com.atlassian.plugins</groupId>-->
-    <!--<artifactId>atlassian-plugins-osgi-testrunner</artifactId>-->
-    <!--<version>${plugin.testrunner.version}</version>-->
-    <!--<scope>test</scope>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-    <!--<groupId>javax.ws.rs</groupId>-->
-    <!--<artifactId>jsr311-api</artifactId>-->
-    <!--<version>1.1.1</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-    <!--<groupId>com.google.code.gson</groupId>-->
-    <!--<artifactId>gson</artifactId>-->
-    <!--<version>2.2.2-atlassian-1</version>-->
-    <!--</dependency>-->
-
-    <!--</dependencies>-->
-
 
     <build>
         <plugins>

@@ -23,10 +23,10 @@
         <resource type="velocity" name="view" location="templates/plugins/git/issuetabpanels/git-commits-view.vm"/>
     </issue-tabpanel>
 
-    <component key="gitManager" name="Git Manager" class="com.xiplink.jira.git.MultipleGitRepositoryManagerImpl"
-               public="true">
-        <interface>com.xiplink.jira.git.MultipleGitRepositoryManager</interface>
-    </component>
+    <!--<component key="gitManager" name="Git Manager" class="com.xiplink.jira.git.MultipleGitRepositoryManagerImpl"-->
+               <!--public="true">-->
+        <!--<interface>com.xiplink.jira.git.MultipleGitRepositoryManager</interface>-->
+    <!--</component>-->
 
     <project-tabpanel key="git-project-tab" name="Git Commits Project Tab Panel"
                       class="com.xiplink.jira.git.projecttabpanels.GitProjectTabPanel">
@@ -80,4 +80,5 @@
             </action>
         </actions>
     </webwork1>
+
 </atlassian-plugin>
